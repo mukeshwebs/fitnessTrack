@@ -2,6 +2,8 @@ package com.codeWithProjects.fitnessTrackerServer.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -11,18 +13,18 @@ public class CommunityGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String name;
     private String description;
-    
+
     @ManyToMany
     @JoinTable(
-        name = "group_members",
-        joinColumns = @JoinColumn(name = "group_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
+            name = "group_members",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> members;
-    
+    private List<User> members = new ArrayList<>(); // Initialize as empty list
+
     @OneToMany(mappedBy = "group")
     private List<Comment> comments;
 }

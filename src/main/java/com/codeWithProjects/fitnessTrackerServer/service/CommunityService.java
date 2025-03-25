@@ -1,4 +1,5 @@
 package com.codeWithProjects.fitnessTrackerServer.service;
+
 import com.codeWithProjects.fitnessTrackerServer.dto.CommunityGroupDTO;
 import com.codeWithProjects.fitnessTrackerServer.dto.CommentDTO;
 import com.codeWithProjects.fitnessTrackerServer.entity.*;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +35,7 @@ public class CommunityService {
                 .orElseThrow(() -> new EntityNotFoundException("Group not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        
+
         group.getMembers().add(user);
         groupRepository.save(group);
     }
@@ -45,7 +47,7 @@ public class CommunityService {
         comment.setCreatedAt(LocalDateTime.now());
         comment.setUser(userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found")));
-        
+
         if (dto.getProgramId() != null) {
             comment.setProgram(programRepository.findById(dto.getProgramId())
                     .orElseThrow(() -> new EntityNotFoundException("Program not found")));
@@ -54,7 +56,7 @@ public class CommunityService {
             comment.setGroup(groupRepository.findById(dto.getGroupId())
                     .orElseThrow(() -> new EntityNotFoundException("Group not found")));
         }
-        
+
         return toDto(commentRepository.save(comment));
     }
 
@@ -63,9 +65,12 @@ public class CommunityService {
         dto.setId(group.getId());
         dto.setName(group.getName());
         dto.setDescription(group.getDescription());
-        dto.setMemberIds(group.getMembers().stream()
-                .map(User::getId)
-                .collect(Collectors.toList()));
+        // Handle null members list safely
+        dto.setMemberIds(group.getMembers() != null ?
+                group.getMembers().stream()
+                        .map(User::getId)
+                        .collect(Collectors.toList()) :
+                Collections.emptyList());
         return dto;
     }
 
